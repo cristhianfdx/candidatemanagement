@@ -31,6 +31,11 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+          
+      - name: Install EB CLI
+        run: |
+          pip install --upgrade pip
+          pip install awsebcli
 
       - name: Deploy to Elastic Beanstalk
         run: |
@@ -40,4 +45,5 @@ jobs:
           eb init $EB_APP_NAME --platform "Java 17" --region us-east-1
           eb use $EB_ENV_NAME
           eb deploy --staged --label "deploy-$(date +%s)" --verbose
+
 
