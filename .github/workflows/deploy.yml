@@ -19,6 +19,9 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Make Maven Wrapper executable
+        run: chmod +x ./mvnw
+
       - name: Build JAR
         run: ./mvnw clean package -DskipTests
 
@@ -37,3 +40,4 @@ jobs:
           eb init $EB_APP_NAME --platform "Java 17" --region us-east-1
           eb use $EB_ENV_NAME
           eb deploy --staged --label "deploy-$(date +%s)" --verbose
+
