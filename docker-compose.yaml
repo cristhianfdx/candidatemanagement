@@ -1,0 +1,91 @@
+version: "3.9"
+services:
+
+  mysql_db:
+    image: mysql:8.0.43
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: candidates_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "mysql_db", "-uroot", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack_candidates
+    environment:
+      - SERVICES=sqs
+      # - PERSISTENCE=/tmp/localstack/data
+    ports:
+      - "4566:4566"
+    # volumes:
+    #  - localstack_data:/tmp/localstack
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  candidates_app:
+    build:
+      context: .
+      dockerfile: dockerfiles/dev/Dockerfile
+    container_name: candidates_app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_db:3306/candidates_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_JWT_SECRET: test-secret
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_SQS_ENDPOINT: http://localstack:4566
+      AWS_SQS_QUEUE_NAME: candidates-queue
+      SECURITY_USER: admin
+      SECURITY_PASSWORD: admin
+
+    depends_on:
+      mysql_db:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
+  localstack_data:
+
+networks:
+  backend:
