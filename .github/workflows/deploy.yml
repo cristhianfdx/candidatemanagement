@@ -25,6 +25,11 @@ jobs:
     - name: Build JAR
       run: ./mvnw clean package -DskipTests
 
+    - name: Prepare ZIP for EB
+      run: |
+        cd target
+        zip -r ../app.zip candidatemanagement-0.0.1-SNAPSHOT.jar
+
     - name: Install EB CLI
       run: |
         pip install --upgrade --user awsebcli
@@ -42,5 +47,6 @@ jobs:
         eb init ${{ secrets.EB_APPLICATION_NAME }} --platform "Corretto 17 running on 64bit Amazon Linux 2" --region ${{ secrets.AWS_REGION }}
         eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
         eb deploy --staged
+
 
 
