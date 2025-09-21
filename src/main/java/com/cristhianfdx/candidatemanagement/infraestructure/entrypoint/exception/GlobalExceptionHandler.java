@@ -1,6 +1,7 @@
 package com.cristhianfdx.candidatemanagement.infraestructure.entrypoint.exception;
 
 import com.cristhianfdx.candidatemanagement.application.dto.ErrorResponse;
+import com.cristhianfdx.candidatemanagement.domain.exception.CandidateAlreadyExistsException;
 import com.cristhianfdx.candidatemanagement.domain.exception.CandidatesNotFoundException;
 import com.cristhianfdx.candidatemanagement.domain.exception.DomainException;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleCandidatesNotFound(CandidatesNotFoundException ex) {
         log.warn("Candidates not found: {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CandidateAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleCandidateAlreadyExists(CandidateAlreadyExistsException ex) {
+        log.warn("Candidate already exists : {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(Exception.class)

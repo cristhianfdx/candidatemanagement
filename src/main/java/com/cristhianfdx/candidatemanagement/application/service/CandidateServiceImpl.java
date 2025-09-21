@@ -4,6 +4,7 @@ import com.cristhianfdx.candidatemanagement.application.dto.CandidateMetricsResp
 import com.cristhianfdx.candidatemanagement.application.dto.CandidateResponse;
 import com.cristhianfdx.candidatemanagement.application.dto.CreateCandidateRequest;
 import com.cristhianfdx.candidatemanagement.application.port.CandidatePort;
+import com.cristhianfdx.candidatemanagement.domain.exception.CandidateAlreadyExistsException;
 import com.cristhianfdx.candidatemanagement.domain.exception.CandidatesNotFoundException;
 import com.cristhianfdx.candidatemanagement.domain.exception.DomainException;
 import com.cristhianfdx.candidatemanagement.domain.model.Candidate;
@@ -77,7 +78,7 @@ public class CandidateServiceImpl implements CandidatePort {
         try {
             candidateRepository.save(candidate);
         } catch (DataIntegrityViolationException e) {
-            throw new DomainException("Candidate already exists.");
+            throw new CandidateAlreadyExistsException("Candidate already exists.");
         }
 
         log.info("Candidate {} {} saved successfully.", request.getFirstname(), request.getLastname());
