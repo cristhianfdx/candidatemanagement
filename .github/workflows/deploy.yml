@@ -42,8 +42,9 @@ jobs:
           EB_APP_NAME="candidate-management-api"
           EB_ENV_NAME="Candidate-management-api-env"
           JAR_FILE=$(ls target/*.jar)
-          eb init $EB_APP_NAME --platform "Java 17" --region us-east-1
+          eb init $EB_APP_NAME --platform "Corretto 17 running on 64bit Amazon Linux 2/3.9.5" --region us-east-1
           eb use $EB_ENV_NAME
           eb deploy --staged --label "deploy-$(date +%s)" --verbose
+
 
 
