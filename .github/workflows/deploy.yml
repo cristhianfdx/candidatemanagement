@@ -1,0 +1,39 @@
+name: Build and Deploy to Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build JAR
+        run: ./mvnw clean package -DskipTests
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          EB_APP_NAME="candidate-management-api"
+          EB_ENV_NAME="Candidate-management-api-env"
+          JAR_FILE=$(ls target/*.jar)
+          eb init $EB_APP_NAME --platform "Java 17" --region us-east-1
+          eb use $EB_ENV_NAME
+          eb deploy --staged --label "deploy-$(date +%s)" --verbose
