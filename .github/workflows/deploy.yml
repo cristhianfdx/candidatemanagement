@@ -39,7 +39,8 @@ jobs:
 
     - name: Deploy to Elastic Beanstalk
       run: |
-        eb init ${{ secrets.EB_APPLICATION_NAME }} --platform "Java 17" --region ${{ secrets.AWS_REGION }}
+        eb init ${{ secrets.EB_APPLICATION_NAME }} --platform "Corretto 17 running on 64bit Amazon Linux 2" --region ${{ secrets.AWS_REGION }}
         eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
         eb deploy --staged
+
 
