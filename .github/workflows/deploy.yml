@@ -18,6 +18,9 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '17'
+        
+    - name: Make Maven Wrapper executable
+      run: chmod +x ./mvnw
 
     - name: Build JAR
       run: ./mvnw clean package -DskipTests
@@ -39,3 +42,4 @@ jobs:
         eb init ${{ secrets.EB_APPLICATION_NAME }} --platform "Java 17" --region ${{ secrets.AWS_REGION }}
         eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
         eb deploy --staged
+
