@@ -10,44 +10,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-        
-    - name: Make Maven Wrapper executable
-      run: chmod +x ./mvnw
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    - name: Build JAR
-      run: ./mvnw clean package -DskipTests
+      - name: Make Maven Wrapper executable
+        run: chmod +x ./mvnw
 
-    - name: Prepare ZIP for EB
-      run: |
-        cd target
-        zip -r ../app.zip candidatemanagement-0.0.1-SNAPSHOT.jar
+      - name: Build JAR
+        run: ./mvnw clean package -DskipTests
 
-    - name: Install EB CLI
-      run: |
-        pip install --upgrade --user awsebcli
-        export PATH=$PATH:$HOME/.local/bin
+      - name: Prepare ZIP for EB
+        run: |
+          # Create ZIP with JAR
+          zip -j app.zip target/candidatemanagement-0.0.1-SNAPSHOT.jar
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+      - name: Install EB CLI
+        run: |
+          pip install --upgrade --user awsebcli
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-    - name: Deploy to Elastic Beanstalk
-      run: |
-        eb init ${{ secrets.EB_APPLICATION_NAME }} --platform "Corretto 17 running on 64bit Amazon Linux 2" --region ${{ secrets.AWS_REGION }}
-        eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
-        eb deploy --staged
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-
-
-
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          eb init ${{ secrets.EB_APPLICATION_NAME }} --platform "Corretto 17 running on 64bit Amazon Linux 2" --region ${{ secrets.AWS_REGION }}
+          eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
+          eb deploy --staged
