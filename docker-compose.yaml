@@ -43,6 +43,8 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    environment:
+      REDIS_PASSWORD: redispass
     networks:
       - backend
     healthcheck:
@@ -62,6 +64,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: rootpassword
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: redispass
       SPRING_JWT_SECRET: test-secret
       AWS_REGION: us-east-1
       AWS_ACCESS_KEY_ID: test
