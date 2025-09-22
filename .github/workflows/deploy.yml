@@ -50,7 +50,7 @@ jobs:
             --platform "Corretto 17 running on 64bit Amazon Linux 2" \
             --region ${{ secrets.AWS_REGION }}
           eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
-          eb deploy --staged --label "deploy-${GITHUB_SHA}" --version "v-${GITHUB_SHA}" --source app.zip
+          eb deploy --staged --version "v-${GITHUB_SHA}" --source app.zip
 
       - name: Clean up artifacts
         run: |
