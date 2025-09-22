@@ -43,16 +43,22 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+     
 
       - name: Deploy to Elastic Beanstalk
         run: |
           eb init ${{ secrets.EB_APPLICATION_NAME }} \
-            --platform "Corretto 17 running on 64bit Amazon Linux 2" \
-            --region ${{ secrets.AWS_REGION }}
+          --platform "Corretto 17 running on 64bit Amazon Linux 2" \
+          --region ${{ secrets.AWS_REGION }}
           eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
-          eb deploy --staged --version "v-${GITHUB_SHA}" --source app.zip
+          eb deploy
 
       - name: Clean up artifacts
         run: |
           JAR_FILE=$(ls *.jar | head -n 1)
           rm -f "$JAR_FILE" app.zip
+
+
+
+
+
