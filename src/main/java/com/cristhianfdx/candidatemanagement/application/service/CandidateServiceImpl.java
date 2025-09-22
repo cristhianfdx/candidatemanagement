@@ -76,7 +76,7 @@ public class CandidateServiceImpl implements CandidatePort {
                 .age(request.getAge())
                 .build();
         try {
-            candidateRepository.save(candidate);
+            candidate = candidateRepository.save(candidate);
         } catch (DataIntegrityViolationException e) {
             throw new CandidateAlreadyExistsException("Candidate already exists.");
         }

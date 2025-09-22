@@ -22,13 +22,19 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class SqsManagementService {
 
-    /** AWS SQS Async client for sending and receiving messages. */
+    /**
+     * AWS SQS Async client for sending and receiving messages.
+     */
     private final SqsAsyncClient sqsAsyncClient;
 
-    /** Spring event publisher for emitting events when a message is processed. */
+    /**
+     * Spring event publisher for emitting events when a message is processed.
+     */
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    /** CompletableFuture containing the URL of the SQS queue this service will publish to and poll from. */
+    /**
+     * CompletableFuture containing the URL of the SQS queue this service will publish to and poll from.
+     */
     private final CompletableFuture<String> queueUrlFuture;
 
     /**
@@ -83,7 +89,7 @@ public class SqsManagementService {
      *     <li>Deletes the message from the SQS queue to prevent reprocessing.</li>
      * </ul>
      *
-     * @param msg the SQS message to process
+     * @param msg      the SQS message to process
      * @param queueUrl the URL of the queue to delete the message from
      */
     private void processMessage(Message msg, String queueUrl) {

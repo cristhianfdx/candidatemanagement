@@ -20,13 +20,12 @@ public class CandidateListener {
         try {
             candidatePort.recalculateMetrics();
             log.info("CandidateRecalculateEvent processed {} successfully.", event.getCandidateId());
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error(
                     "CandidateRecalculateEvent {} is not proceed for error: {}",
                     event.getCandidateId(), e.getMessage()
             );
         }
-
 
     }
 }
