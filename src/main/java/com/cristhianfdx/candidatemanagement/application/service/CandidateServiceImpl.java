@@ -83,7 +83,8 @@ public class CandidateServiceImpl implements CandidatePort {
 
         log.info("Candidate {} {} saved successfully.", request.getFirstname(), request.getLastname());
 
-        sqsManagementService.publishCandidateCreated(candidate.getId().toString());
+        sqsManagementService.publishCandidateCreated(String.format("candidate-%s-%s",
+                candidate.getId().toString(), candidate.getEmail()));
     }
 
     /**

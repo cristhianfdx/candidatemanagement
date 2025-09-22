@@ -27,8 +27,10 @@ jobs:
 
       - name: Prepare ZIP for EB
         run: |
-          # Create ZIP with JAR
-          zip -j app.zip target/candidatemanagement-0.0.1-SNAPSHOT.jar
+          JAR_FILE=$(ls target/*.jar | head -n 1)
+          echo "Using JAR: $JAR_FILE"
+          cp "$JAR_FILE" .
+          zip -j app.zip "$(basename "$JAR_FILE")"
 
       - name: Install EB CLI
         run: |
@@ -44,6 +46,13 @@ jobs:
 
       - name: Deploy to Elastic Beanstalk
         run: |
-          eb init ${{ secrets.EB_APPLICATION_NAME }} --platform "Corretto 17 running on 64bit Amazon Linux 2" --region ${{ secrets.AWS_REGION }}
+          eb init ${{ secrets.EB_APPLICATION_NAME }} \
+            --platform "Corretto 17 running on 64bit Amazon Linux 2" \
+            --region ${{ secrets.AWS_REGION }}
           eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
-          eb deploy --staged
+          eb deploy --staged --label "deploy-${GITHUB_SHA}" --version "v-${GITHUB_SHA}" --source app.zip
+
+      - name: Clean up artifacts
+        run: |
+          JAR_FILE=$(ls *.jar | head -n 1)
+          rm -f "$JAR_FILE" app.zip

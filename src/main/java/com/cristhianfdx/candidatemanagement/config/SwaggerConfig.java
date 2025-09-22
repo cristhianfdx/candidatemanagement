@@ -26,8 +26,12 @@ public class SwaggerConfig {
                                 .name("Cristhian Forero")
                                 .email("cristhianfdx@gmail.com")))
                 .servers(List.of(
-                        new Server().url("http://localhost:8080").description("Development environment."),
-                        new Server().url("prod-api-url").description("Production environment.")
+                        new Server()
+                                .url("http://localhost:8080")
+                                .description("Development environment."),
+                        new Server()
+                                .url("http://candidate-management-api-env.eba-gmg3pbrt.us-east-1.elasticbeanstalk.com")
+                                .description("Production environment.")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("basicAuth"))
                 .components(new Components()

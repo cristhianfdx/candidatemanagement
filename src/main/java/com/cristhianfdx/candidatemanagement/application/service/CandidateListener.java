@@ -16,7 +16,17 @@ public class CandidateListener {
 
     @EventListener
     public void handleCandidateRecalculateEvent(CandidateRecalculateEvent event) {
-        candidatePort.recalculateMetrics();
-        log.info("Recalculated event processed: {}", event.getCandidateId());
+        log.info("Receiving CandidateRecalculateEvent {}...", event.getCandidateId());
+        try {
+            candidatePort.recalculateMetrics();
+            log.info("CandidateRecalculateEvent processed {} successfully.", event.getCandidateId());
+        } catch (Exception e){
+            log.error(
+                    "CandidateRecalculateEvent {} is not proceed for error: {}",
+                    event.getCandidateId(), e.getMessage()
+            );
+        }
+
+
     }
 }
