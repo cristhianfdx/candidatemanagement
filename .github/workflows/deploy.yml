@@ -84,12 +84,3 @@ jobs:
         run: |
           JAR_FILE=$(ls *.jar | head -n 1)
           rm -f "$JAR_FILE" app.zip
-
-      - name: Commit new version
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add eb_version.txt
-          git commit -m "Bump EB version to $VERSION_LABEL [skip ci]" || echo "No changes to commit"
-
-          git push
