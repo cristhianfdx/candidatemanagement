@@ -48,17 +48,22 @@ jobs:
         run: |
           APP_NAME="${{ secrets.EB_APPLICATION_NAME }}"
           
-          LATEST_VERSION=$(aws elasticbeanstalk describe-application-versions \
-            --application-name "$APP_NAME" \
-            --query 'ApplicationVersions[-1].VersionLabel' \
-            --output text)
-          echo "Last version: $LATEST_VERSION"
+          LATEST_V2_VERSION=$(aws elasticbeanstalk describe-application-versions \
+          --application-name "$APP_NAME" \
+          --query 'ApplicationVersions[?starts_with(VersionLabel, `v2-`)] | sort_by(@,&DateCreated)[-1].VersionLabel' \
+          --output text)
           
-          NUM=$(echo "$LATEST_VERSION" | grep -o '[0-9]\+')
-          NEXT_NUM=$((NUM + 1))
-          
-          echo "VERSION_LABEL=v-$NEXT_NUM" >> $GITHUB_ENV
-          echo "New version: v-$NEXT_NUM"
+          if [ -z "$LATEST_V2_VERSION" ] || [ "$LATEST_V2_VERSION" == "None" ]; then
+            NEXT_NUM=1
+          else
+            NUM=$(echo "$LATEST_V2_VERSION" | grep -o '[0-9]\+$')
+            NEXT_NUM=$((NUM + 1))
+          fi
+
+          # Build new VersionLabel
+          VERSION_LABEL="v2-$NEXT_NUM"
+          echo "VERSION_LABEL=$VERSION_LABEL" >> $GITHUB_ENV
+          echo "New version: $VERSION_LABEL"
 
       - name: Deploy to Elastic Beanstalk
         run: |
@@ -72,6 +77,7 @@ jobs:
         run: |
           JAR_FILE=$(ls *.jar | head -n 1)
           rm -f "$JAR_FILE" app.zip
+
 
 
 
