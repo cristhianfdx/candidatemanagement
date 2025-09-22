@@ -51,10 +51,11 @@ jobs:
           --platform "Corretto 17 running on 64bit Amazon Linux 2" \
           --region ${{ secrets.AWS_REGION }}
           eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
-          eb deploy --staged --label "$VERSION_LABEL" --source app.zip
+          eb deploy --label "$VERSION_LABEL"
 
       - name: Clean up artifacts
         run: |
           JAR_FILE=$(ls *.jar | head -n 1)
           rm -f "$JAR_FILE" app.zip
+
 
