@@ -44,9 +44,24 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Generate incremental EB version
+        run: |
+          APP_NAME="${{ secrets.EB_APPLICATION_NAME }}"
+          
+          LATEST_VERSION=$(aws elasticbeanstalk describe-application-versions \
+            --application-name "$APP_NAME" \
+            --query 'ApplicationVersions[-1].VersionLabel' \
+            --output text)
+          echo "Last version: $LATEST_VERSION"
+          
+          NUM=$(echo "$LATEST_VERSION" | grep -o '[0-9]\+')
+          NEXT_NUM=$((NUM + 1))
+          
+          echo "VERSION_LABEL=v-$NEXT_NUM" >> $GITHUB_ENV
+          echo "New version: v-$NEXT_NUM"
+
       - name: Deploy to Elastic Beanstalk
         run: |
-          VERSION_LABEL="v2-${GITHUB_RUN_NUMBER}"
           eb init ${{ secrets.EB_APPLICATION_NAME }} \
           --platform "Corretto 17 running on 64bit Amazon Linux 2" \
           --region ${{ secrets.AWS_REGION }}
@@ -57,5 +72,6 @@ jobs:
         run: |
           JAR_FILE=$(ls *.jar | head -n 1)
           rm -f "$JAR_FILE" app.zip
+
 
 
