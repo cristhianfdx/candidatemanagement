@@ -4,14 +4,20 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'eb_version.txt'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -85,4 +91,5 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git add eb_version.txt
           git commit -m "Bump EB version to $VERSION_LABEL [skip ci]" || echo "No changes to commit"
+
           git push
