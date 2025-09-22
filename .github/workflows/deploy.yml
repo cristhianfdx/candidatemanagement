@@ -22,6 +22,9 @@ jobs:
       - name: Make Maven Wrapper executable
         run: chmod +x ./mvnw
 
+      - name: Run Unit Tests
+        run: ./mvnw clean test
+
       - name: Build JAR
         run: ./mvnw clean package -DskipTests
 
@@ -43,6 +46,24 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Read and bump EB version
+        run: |
+            if [ ! -f eb_version.txt ]; then
+              echo "v2-0" > eb_version.txt
+            fi
+            
+            CURRENT_VERSION=$(cat eb_version.txt)
+            echo "Current version: $CURRENT_VERSION"
+            
+            NUM=$(echo "$CURRENT_VERSION" | grep -o '[0-9]\+$')
+            NEXT_NUM=$((NUM + 1))
+            
+            NEW_VERSION="v2-$NEXT_NUM"
+            echo "New version: $NEW_VERSION"
+            
+            echo "$NEW_VERSION" > eb_version.txt
+            echo "VERSION_LABEL=$NEW_VERSION" >> $GITHUB_ENV
      
 
       - name: Deploy to Elastic Beanstalk
@@ -51,14 +72,17 @@ jobs:
           --platform "Corretto 17 running on 64bit Amazon Linux 2" \
           --region ${{ secrets.AWS_REGION }}
           eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
-          eb deploy
+          eb deploy --label "$VERSION_LABEL"
 
       - name: Clean up artifacts
         run: |
           JAR_FILE=$(ls *.jar | head -n 1)
           rm -f "$JAR_FILE" app.zip
 
-
-
-
-
+      - name: Commit new version
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add eb_version.txt
+          git commit -m "Bump EB version to $VERSION_LABEL [skip ci]" || echo "No changes to commit"
+          git push
