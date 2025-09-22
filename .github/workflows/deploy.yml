@@ -43,27 +43,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Generate incremental EB version
-        run: |
-          APP_NAME="${{ secrets.EB_APPLICATION_NAME }}"
-          
-          LATEST_V2_VERSION=$(aws elasticbeanstalk describe-application-versions \
-          --application-name "$APP_NAME" \
-          --query 'ApplicationVersions[?starts_with(VersionLabel, `v2-`)] | sort_by(@,&DateCreated)[-1].VersionLabel' \
-          --output text)
-          
-          if [ -z "$LATEST_V2_VERSION" ] || [ "$LATEST_V2_VERSION" == "None" ]; then
-            NEXT_NUM=1
-          else
-            NUM=$(echo "$LATEST_V2_VERSION" | grep -o '[0-9]\+$')
-            NEXT_NUM=$((NUM + 1))
-          fi
-
-          # Build new VersionLabel
-          VERSION_LABEL="v2-$NEXT_NUM"
-          echo "VERSION_LABEL=$VERSION_LABEL" >> $GITHUB_ENV
-          echo "New version: $VERSION_LABEL"
+     
 
       - name: Deploy to Elastic Beanstalk
         run: |
@@ -71,12 +51,13 @@ jobs:
           --platform "Corretto 17 running on 64bit Amazon Linux 2" \
           --region ${{ secrets.AWS_REGION }}
           eb use ${{ secrets.EB_ENVIRONMENT_NAME }}
-          eb deploy --label "$VERSION_LABEL"
+          eb deploy
 
       - name: Clean up artifacts
         run: |
           JAR_FILE=$(ls *.jar | head -n 1)
           rm -f "$JAR_FILE" app.zip
+
 
 
 
